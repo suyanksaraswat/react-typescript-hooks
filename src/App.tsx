@@ -21,7 +21,7 @@ const App: React.FC = () => {
           <Input
             placeholder={`Search ${dataIndex}`}
             value={props.selectedKeys[0]}
-            onChange={(e) =>
+            onChange={(e: any) =>
               props.setSelectedKeys(e.target.value ? [e.target.value] : [])
             }
             onPressEnter={() =>
@@ -127,7 +127,7 @@ const App: React.FC = () => {
   const handleDownload = (fileName: string, blobName: string) => {
     axios
       .get(`https://qorus-test.azurewebsites.net/QorusFile/${blobName}`)
-      .then((response) => {
+      .then((response: any) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
         link.href = url;
@@ -135,7 +135,7 @@ const App: React.FC = () => {
         document.body.appendChild(link);
         link.click();
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
       });
   };
@@ -143,11 +143,11 @@ const App: React.FC = () => {
   const getAllFileList = () => {
     axios
       .get("https://qorus-test.azurewebsites.net/QorusFile")
-      .then((res) => {
+      .then((res: any) => {
         console.log(res);
         setFileList(res.data);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
       });
   };
@@ -166,13 +166,13 @@ const App: React.FC = () => {
 
     axios
       .post("https://qorus-test.azurewebsites.net/QorusFile", formData)
-      .then((res) => {
+      .then((res: any) => {
         getAllFileList();
         setAddFileModal(false);
         setCategory('');
         setLastReviewed('');
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
       });
   };
@@ -210,7 +210,7 @@ const App: React.FC = () => {
       </Modal>
       <div style={{padding: 30}}>
       <div style={{ display: "flex", justifyContent: 'space-between' }}>
-        <h2>File list</h2>
+        <h2 id="h1">File list</h2>
         <Button type="primary" onClick={() => setAddFileModal(true)}>
           Add file
         </Button>
