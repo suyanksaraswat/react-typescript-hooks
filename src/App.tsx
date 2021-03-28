@@ -4,68 +4,62 @@ import {Button, Input, Space, Table} from 'antd';
 import {SearchOutlined} from '@ant-design/icons';
 import axios from 'axios';
 
-
 const App: React.FC = () => {
   const [fileList, setFileList] = useState<Array<any>>([]);
   const [searchText, setSearchText] = useState<string>('');
   const [searchedColumn, setSearchedColumn] = useState<string>('');
 
   const getColumnSearchProps = (dataIndex: any) => ({
-    // filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => {
-      filterDropdown: (props: any) => {
-      const searchInputHolder: { current: Input | null } = {current: null};
+    filterDropdown: (props: any) => {
       return <div style={{ padding: 8 }}>
       <Input
         placeholder={`Search ${dataIndex}`}
         value={props.selectedKeys[0]}
         onChange={e => props.setSelectedKeys(e.target.value ? [e.target.value] : [])}
-        onPressEnter={() => handleSearch(props.selectedKeys, props.confirm(), dataIndex)}
+        onPressEnter={() => handleSearch(props.selectedKeys, confirm, dataIndex)}
         style={{ width: 188, marginBottom: 8, display: 'block' }}
       />
       <Space>
         <Button
           type="primary"
-          onClick={() => handleSearch(props.selectedKeys, props.confirm(), dataIndex)}
+          onClick={() => handleSearch(props.selectedKeys, confirm, dataIndex)}
           icon={<SearchOutlined />}
           size="small"
           style={{ width: 90 }}
         >
           Search
         </Button>
-        <Button onClick={() => handleReset(props.clearFilters())} size="small" style={{ width: 90 }}>
+        <Button onClick={() => handleReset(props.clearFilters)} size="small" style={{ width: 90 }}>
           Reset
-        </Button>
-        <Button
-          type="link"
-          size="small"
-          onClick={() => {
-            props.confirm({ closeDropdown: false });
-            setSearchText(props.selectedKeys[0]);
-            setSearchedColumn(dataIndex);
-          }}
-        >
-          Filter
         </Button>
       </Space>
     </div>
     },
-    filterIcon: (filtered: any) => <SearchOutlined style={{color: filtered ? '#1890ff' : undefined}}/>,
+    filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    onFilter: (value: any, record: any) =>
+      record.dataIndex
+        ? record.dataIndex.toString().toLowerCase().includes(value.toLowerCase())
+        : '',
     onFilterDropdownVisibleChange: (visible: any) => {
       if (visible) {
         // setTimeout(() => searchInputHolder.current?.select());
       }
     },
     render: (text: any) =>
-      searchedColumn === dataIndex ? (
-        text
-      ) : null,
+      searchedColumn === dataIndex && (
+        ''
+      ),
   });
 
-
   const handleSearch = (selectedKeys: any, confirm: () => void, dataIndex: any) => {
-    confirm();
+    // confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
+    
+    const filteredData = fileList.filter(entry =>
+      entry[dataIndex].includes(selectedKeys[0])
+    );
+    console.log('######-', selectedKeys[0], dataIndex, filteredData)
   };
 
   const handleReset = (clearFilters: () => void) => {
@@ -80,7 +74,7 @@ const App: React.FC = () => {
       dataIndex: 'fileName',
       key: 'fileName',
       ...getColumnSearchProps('fileName'),
-      render: (text: string, record: any) => {
+      render: (text: any, record: any) => {
         return <div onClick={() => handleDownload(record.fileName, record.blobName)}>{text}</div>
       }
     },
