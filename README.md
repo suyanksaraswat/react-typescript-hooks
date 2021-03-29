@@ -4,6 +4,11 @@
 
 This app was created by the React TypeScript- File list App . Feel free to clone this app directly and explore the code!
 
+## Hosted on Netlify
+```bash
+https://dreamy-brahmagupta-3a4200.netlify.app
+```
+
 ## Clone and Run the App
 
 Clone the app:
