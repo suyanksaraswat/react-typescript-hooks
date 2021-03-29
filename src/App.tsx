@@ -3,15 +3,16 @@ import React, { useState, useEffect } from "react";
 import { Button, DatePicker, Form, Input, Modal, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import axios from "axios";
-import moment from 'moment';
+import moment from "moment";
 
 const App: React.FC = () => {
   const [fileList, setFileList] = useState<Array<any>>([]);
+  const [filteredFileList, setFilteredFileList] = useState<Array<any>>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [searchedColumn, setSearchedColumn] = useState<string>("");
   const [addFileModal, setAddFileModal] = useState<boolean>(false);
   const [file, setFile] = useState<any>();
-  const [category, setCategory] = useState<string>('');
+  const [category, setCategory] = useState<string>("");
   const [lastReviewed, setLastReviewed] = useState<any>();
 
   const getColumnSearchProps = (dataIndex: any) => ({
@@ -67,7 +68,7 @@ const App: React.FC = () => {
         // setTimeout(() => searchInputHolder.current?.select());
       }
     },
-    render: (text: any) => searchedColumn === dataIndex && "",
+    render: (text: any) => searchedColumn === dataIndex && text,
   });
 
   const handleSearch = (
@@ -75,20 +76,17 @@ const App: React.FC = () => {
     confirm: () => void,
     dataIndex: any
   ) => {
-    // confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
 
-    // const filteredData = fileList.filter(entry =>
-    //   entry[dataIndex].includes(searchText)
-    // );
-    // console.log('######-', selectedKeys, dataIndex, filteredData)
-    // setFileList(filteredData);
+    const data = fileList?.filter(res => res[dataIndex].toLowerCase().includes(selectedKeys[0].toLowerCase()));
+    setFilteredFileList(data);
   };
 
   const handleReset = (clearFilters: () => void) => {
     clearFilters();
     setSearchText("");
+    setFilteredFileList(fileList);
   };
 
   const columns = [
@@ -99,9 +97,9 @@ const App: React.FC = () => {
       ...getColumnSearchProps("fileName"),
       render: (text: any, record: any) => {
         return (
-          <div onClick={() => handleDownload(record.fileName, record.blobName)}>
+          <a onClick={() => handleDownload(record.fileName, record.blobName)}>
             {text}
-          </div>
+          </a>
         );
       },
     },
@@ -114,7 +112,15 @@ const App: React.FC = () => {
       title: "Category",
       dataIndex: "category",
       key: "category",
+      ...getColumnSearchProps("category"),
       sorter: (a: any, b: any) => a.category.localeCompare(b.category),
+      render: (text: any, record: any) => {
+        return (
+          <div>
+            {text}
+          </div>
+        );
+      },
     },
     {
       title: "Last Reviewed",
@@ -146,6 +152,7 @@ const App: React.FC = () => {
       .then((res: any) => {
         console.log(res);
         setFileList(res.data);
+        setFilteredFileList(res.data);
       })
       .catch((error: any) => {
         console.log(error);
@@ -153,24 +160,20 @@ const App: React.FC = () => {
   };
 
   const uploadFile = () => {
-    console.log('####--', file);
-    console.log('####--', lastReviewed);
-    console.log('####--', category);
-  
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('Size', file.size);
-    formData.append('FileName', file.name);
-    formData.append('Category', category);
-    formData.append('LastReviewed', lastReviewed);
+    formData.append("file", file);
+    formData.append("Size", file.size);
+    formData.append("FileName", file.name);
+    formData.append("Category", category);
+    formData.append("LastReviewed", lastReviewed);
 
     axios
       .post("https://qorus-test.azurewebsites.net/QorusFile", formData)
       .then((res: any) => {
         getAllFileList();
         setAddFileModal(false);
-        setCategory('');
-        setLastReviewed('');
+        setCategory("");
+        setLastReviewed("");
       })
       .catch((error: any) => {
         console.log(error);
@@ -181,6 +184,10 @@ const App: React.FC = () => {
     getAllFileList();
   }, []);
 
+  const handleChangeCategory = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCategory(e.target.value);
+  }
+
   return (
     <React.Fragment>
       <Modal
@@ -188,34 +195,45 @@ const App: React.FC = () => {
         destroyOnClose
         visible={addFileModal}
         onCancel={() => setAddFileModal(false)}
-        title={'Upload file'}
+        title={"Upload file"}
         footer={false}
       >
         <Form>
           <Form.Item label="File">
-            <input type='file' onChange={(e: any) => setFile(e.target.files[0])}  />
+            <input
+              type="file"
+              onChange={(e: any) => setFile(e.target.files[0])}
+            />
           </Form.Item>
           <Form.Item label="Category">
-            <Input value={category} onChange={(e: any) => setCategory(e.target.value)} />
+            <Input
+              data-testid="category"
+              value={category}
+              onChange={handleChangeCategory}
+            />
           </Form.Item>
           <Form.Item label="Last reviewed">
-            <DatePicker onChange={(date: any, dateString: any) => setLastReviewed(dateString)} />
+            <DatePicker
+              onChange={(date: any, dateString: any) =>
+                setLastReviewed(dateString)
+              }
+            />
           </Form.Item>
           <Form.Item>
-            <Button type='primary' onClick={() => uploadFile()}>
+            <Button type="primary" onClick={() => uploadFile()}>
               Upload file
             </Button>
           </Form.Item>
         </Form>
       </Modal>
-      <div style={{padding: 30}}>
-      <div style={{ display: "flex", justifyContent: 'space-between' }}>
-        <h2 id="h1">File list</h2>
-        <Button type="primary" onClick={() => setAddFileModal(true)}>
-          Add file
-        </Button>
-      </div>
-      <Table dataSource={fileList} columns={columns} />
+      <div style={{ padding: 30 }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <h2>File list</h2>
+          <Button type="primary" onClick={() => setAddFileModal(true)}>
+            Add file
+          </Button>
+        </div>
+        <Table dataSource={filteredFileList} columns={columns} />
       </div>
     </React.Fragment>
   );

@@ -2,15 +2,15 @@
 
 ## About this Repository
 
-This app was created during the React TypeScript Todo App tutorial (link forthcoming). I recommend following along with the tutorial video, but feel free to clone this app directly and explore the code!
+This app was created by the React TypeScript- File list App . Feel free to clone this app directly and explore the code!
 
 ## Clone and Run the App
 
 Clone the app:
 
 ```bash
-git clone https://github.com/nas5w/react-typescript-todo-app.git
-cd react-typescript-todo-app
+git clone https://github.com/suyanksaraswat/react-typescript-hooks.git
+cd react-typescript-hooks
 ```
 
 Install dependencies:
@@ -23,6 +23,12 @@ Run the app:
 
 ```
 yarn start
+```
+
+Run the tet:
+
+```
+yarn run test
 ```
 
 ## Notes
