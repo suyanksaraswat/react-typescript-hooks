@@ -1,4 +1,4 @@
-# React TypeScript Todo App
+# React TypeScript File List App
 
 ## About this Repository
 
