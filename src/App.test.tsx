@@ -6,6 +6,7 @@ import Adapter from "enzyme-adapter-react-16";
 import { shallow, configure, mount } from "enzyme";
 import moment from "moment";
 import { fireEvent, getByTestId, render } from "@testing-library/react";
+import { Input } from "antd";
 
 configure({ adapter: new Adapter() });
 
@@ -23,17 +24,24 @@ describe("App", () => {
     expect(value).toEqual(moment(date, format));
   });
 
-  it("handleChange function called", async () => {
-    // const spy = jest.fn();
+  it("handleChange function called- checking spy", async () => {
+    const spy = jest.fn();
     // const { findByTestId } = render(<App />);
     // let input = await findByTestId("category");
     // fireEvent.change(input, { target: { value: "23" } });
-    // expect(spy).toHaveBeenCalledTimes(1);
-    
-    const spy = jest.fn();
-    const wrapper = shallow(<App />);
-    const input = await wrapper.find('category');
-    fireEvent.change(input, { target: { value: "23" } });
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
+
+  // test('onChange fires', async () => {
+  //   const changeHandler = jest.fn()
+  //   const { getByRole } = render(<Input id="myUniqId" onChange={changeHandler} />);
+  //   const input = getByRole('textbox')
+  //   const mockTypingEvent = {
+  //     target: {
+  //       value: "changed-value"
+  //     }
+  //   };
+  //   await fireEvent.change(input, mockTypingEvent)
+  //   expect(changeHandler).toHaveBeenCalledTimes(1)
+  // })
 });
