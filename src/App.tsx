@@ -4,6 +4,7 @@ import { Button, DatePicker, Form, Input, Modal, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
+import { message } from "antd";
 
 const App: React.FC = () => {
   const [fileList, setFileList] = useState<Array<any>>([]);
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [file, setFile] = useState<any>();
   const [category, setCategory] = useState<string>("");
   const [lastReviewed, setLastReviewed] = useState<any>();
+  const [btnLoading, setBtnLoading] = useState<boolean>(false);
 
   const getColumnSearchProps = (dataIndex: any) => ({
     filterDropdown: (props: any) => {
@@ -79,7 +81,9 @@ const App: React.FC = () => {
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
 
-    const data = fileList?.filter(res => res[dataIndex].toLowerCase().includes(selectedKeys[0].toLowerCase()));
+    const data = fileList?.filter((res) =>
+      res[dataIndex].toLowerCase().includes(selectedKeys[0].toLowerCase())
+    );
     setFilteredFileList(data);
   };
 
@@ -115,11 +119,7 @@ const App: React.FC = () => {
       ...getColumnSearchProps("category"),
       sorter: (a: any, b: any) => a.category.localeCompare(b.category),
       render: (text: any, record: any) => {
-        return (
-          <div>
-            {text}
-          </div>
-        );
+        return <div>{text}</div>;
       },
     },
     {
@@ -160,6 +160,7 @@ const App: React.FC = () => {
   };
 
   const uploadFile = () => {
+    setBtnLoading(true);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("Size", file.size);
@@ -170,13 +171,16 @@ const App: React.FC = () => {
     axios
       .post("https://qorus-test.azurewebsites.net/QorusFile", formData)
       .then((res: any) => {
+        setBtnLoading(false);
+        message.success('Uploaded Successfully')
         getAllFileList();
         setAddFileModal(false);
         setCategory("");
         setLastReviewed("");
       })
       .catch((error: any) => {
-        console.log(error);
+        setBtnLoading(false);
+        message.error(error?.response?.data?.detail || error?.response?.data?.title);
       });
   };
 
@@ -186,7 +190,7 @@ const App: React.FC = () => {
 
   const handleChangeCategory = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCategory(e.target.value);
-  }
+  };
 
   return (
     <React.Fragment>
@@ -220,7 +224,11 @@ const App: React.FC = () => {
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" onClick={() => uploadFile()}>
+            <Button
+              type="primary"
+              onClick={() => uploadFile()}
+              loading={btnLoading}
+            >
               Upload file
             </Button>
           </Form.Item>
